@@ -128,8 +128,54 @@ bot.onText(/\/ligamx/, async (msg) => {
         }
       }
     });
-    
+
     bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
+
+
+    // 📌 Comando para obtener recomendaciones de tiros de esquina
+bot.onText(/\/corners (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  if (!isAuthorized(chatId)) return bot.sendMessage(chatId, "🚫 *Acceso denegado.* Ingresa un token válido con /start <token>", { parse_mode: "Markdown" });
+
+  const teamName = match[1].toLowerCase();
+
+  try {
+    const url = `https://api.the-odds-api.com/v4/sports/${SPORT_KEY}/odds/?apiKey=${API_KEY}&regions=${REGIONS}&markets=spreads&oddsFormat=${ODDS_FORMAT}`;
+    const response = await axios.get(url);
+
+    if (!response.data || response.data.length === 0) {
+      return bot.sendMessage(chatId, "⚠️ No hay datos disponibles en este momento.");
+    }
+
+    let message = `📊 *Recomendación de tiros de esquina para ${teamName}:*\n`;
+    let found = false;
+
+    response.data.forEach(match => {
+      const bookmaker = match.bookmakers.find(bm => bm.title === TARGET_BOOKMAKER);
+      if (bookmaker) {
+        const market = bookmaker.markets.find(mkt => mkt.key === "spreads");
+        if (market) {
+          const outcome = market.outcomes.find(outcome => outcome.name.toLowerCase().includes(teamName));
+          if (outcome) {
+            message += `\n⚽ *Equipo:* ${outcome.name}`;
+            message += `\n🎯 *Línea de córners:* ${outcome.point}`;
+            message += `\n💰 *Momio:* ${outcome.price}`;
+            found = true;
+          }
+        }
+      }
+    });
+
+    if (!found) {
+      message = "❌ No se encontraron recomendaciones de córners para este equipo.";
+    }
+
+    bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
+  } catch (error) {
+    console.error(error);
+    bot.sendMessage(chatId, "❌ Error obteniendo los datos de tiros de esquina.");
+  }
+});
 
   } catch (error) {
     console.error(error);
