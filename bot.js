@@ -105,17 +105,30 @@ bot.onText(/\/ligamx/, async (msg) => {
           const empate = odds.find(outcome => outcome.name === "Draw");
           const visitante = odds.find(outcome => outcome.name === awayTeam);
 
-          message += `
-⚽ *${homeTeam} 🆚 ${awayTeam}*  
-📅 *Fecha:* ${new Date(match.commence_time).toLocaleString()}  
-🏠 *Local:* ${local ? local.price : "N/A"}  
-⚖️ *Empate:* ${empate ? empate.price : "N/A"}  
-🚀 *Visitante:* ${visitante ? visitante.price : "N/A"}  
-───────────────────`;
+          message += `\n⚽ *${homeTeam} 🆚 ${awayTeam}*  `;
+          message += `\n📅 *Fecha:* ${new Date(match.commence_time).toLocaleString()}`;
+          message += `\n🏠 *Local:* ${local ? local.price : "N/A"}`;
+          message += `\n⚖️ *Empate:* ${empate ? empate.price : "N/A"}`;
+          message += `\n🚀 *Visitante:* ${visitante ? visitante.price : "N/A"}`;
+
+          // 🔥 Agregar recomendación de apuesta
+          let recommendation = "\n🎯 *Recomendación:* ";
+          if (local && local.price < 2.00) {
+            recommendation += `Apostar por *${homeTeam}* 🏠`;
+          } else if (visitante && visitante.price < 2.00) {
+            recommendation += `Apostar por *${awayTeam}* 🚀`;
+          } else if (empate && empate.price >= 3.00 && empate.price <= 3.50) {
+            recommendation += `Posible empate ⚖️`;
+          } else {
+            recommendation += `Evitar apostar, partido incierto ❌`;
+          }
+          message += recommendation;
+
+          message += "\n───────────────────";
         }
       }
     });
-
+    
     bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
 
   } catch (error) {

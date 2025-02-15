@@ -102,7 +102,7 @@ bot.onText(/\/ligamx/, (msg) => {
 
                 // 🔥 Agregar recomendación de apuesta
                 let recommendation = "\n🎯 *Recomendación:* ";
-                if (local.price < 2.00) {
+                if (local.price < 2.00){ 
                   recommendation += `Apostar por *${homeTeam}* 🏠`;
                 } else if (visitante.price < 2.00) {
                   recommendation += `Apostar por *${awayTeam}* 🚀`;
